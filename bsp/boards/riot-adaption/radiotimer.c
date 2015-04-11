@@ -68,11 +68,11 @@ void radiotimer_setEndFrameCb(radiotimer_capture_cbt cb) {
 
 void radiotimer_start(PORT_RADIOTIMER_WIDTH period) {
     DEBUG("%s\n", __PRETTY_FUNCTION__);
-    // timer_init(OWSN_TIMER, 1, &radiotimer_isr);
+    timer_init(OWSN_TIMER, 1, &radiotimer_isr);
     timer_set(OWSN_TIMER, 1, ((unsigned int)HWTIMER_TICKS(period)*10));
     current_period = period;
-   radiotimer_vars.currentSlotPeriod = period;
-   radiotimer_vars.overflowORcompare = RADIOTIMER_OVERFLOW;
+    radiotimer_vars.currentSlotPeriod = period;
+    radiotimer_vars.overflowORcompare = RADIOTIMER_OVERFLOW;
 }
 
 //===== direct access
@@ -109,7 +109,7 @@ void radiotimer_schedule(PORT_RADIOTIMER_WIDTH offset) {
 void radiotimer_cancel(void) {
     DEBUG("%s\n", __PRETTY_FUNCTION__);
     timer_irq_disable(OWSN_TIMER);
-    // timer_clear(OWSN_TIMER, 1);
+    timer_clear(OWSN_TIMER, 1);
     timer_set(OWSN_TIMER, 1, HWTIMER_TICKS(current_period)*10);
     timer_irq_enable(OWSN_TIMER);
 
@@ -126,7 +126,8 @@ inline PORT_RADIOTIMER_WIDTH radiotimer_getCapturedTime(void) {
 //=========================== private =========================================
 
 //=========================== interrupt handlers ==============================
-void radiotimer_isr(void) {
+void radiotimer_isr(int arg) {
+    (void)arg;
     uint8_t taiv_temp = radiotimer_vars.overflowORcompare;
     switch (taiv_temp) {
         case RADIOTIMER_COMPARE:
