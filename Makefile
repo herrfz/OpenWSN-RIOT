@@ -2,6 +2,7 @@ export MODULE:=$(shell basename $(CURDIR))
 export OPENWSN_ROOT=$(CURDIR)
 
 DIRS += $(OPENWSN_ROOT)/projects/common/03oos_openwsn \
+		$(OPENWSN_ROOT)/projects/common/01bsp_radiotimer \
 		$(OPENWSN_ROOT)/openstack \
 		$(OPENWSN_ROOT)/openapps \
 		$(OPENWSN_ROOT)/kernel/openos \

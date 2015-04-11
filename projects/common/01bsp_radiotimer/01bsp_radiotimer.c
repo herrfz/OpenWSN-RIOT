@@ -20,7 +20,7 @@ Each time a radiotimer compare event happens:
 
 #include "stdint.h"
 #include "string.h"
-#include "board.h"
+#include "board_ow.h"
 #include "debugpins.h"
 #include "leds.h"
 #include "radiotimer.h"
@@ -57,10 +57,12 @@ void cb_compare(void);
 /**
 \brief The program starts executing here.
 */
-int mote_main(void) {
+void* mote_main(void *arg) {
+
+   (void) arg;
    
    // initialize board
-   board_init();
+   board_init_ow();
    
    // prepare radiotimer
    radiotimer_setOverflowCb(cb_overflow);
@@ -72,7 +74,7 @@ int mote_main(void) {
 
    // start periodic overflow
    radiotimer_start(RADIOTIMER_OVERFLOW_PERIOD);
-   leds_radio_on();
+   leds_sync_on();
    radiotimer_schedule(app_vars.last_compare_val);
    
    while (1) {
@@ -88,7 +90,7 @@ void cb_overflow(void) {
    debugpins_frame_toggle();
    
    // switch radio LED on
-   leds_error_toggle();
+   leds_sync_toggle();
    
    // reset the counter for number of remaining compares
    app_vars.num_compares_left  = RADIOTIMER_NUM_COMPARES;
@@ -105,7 +107,7 @@ void cb_compare(void) {
    debugpins_slot_toggle();
    
    // toggle radio LED
-   leds_radio_toggle();
+   leds_sync_toggle();
    
    // schedule a next compare, if applicable
    app_vars.last_compare_val += RADIOTIMER_COMPARE_PERIOD;
