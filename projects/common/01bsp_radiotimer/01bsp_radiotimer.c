@@ -25,6 +25,8 @@ Each time a radiotimer compare event happens:
 #include "leds.h"
 #include "radiotimer.h"
 
+#include "riot.h"
+
 //=========================== defines =========================================
 
 #define RADIOTIMER_OVERFLOW_PERIOD      20000
@@ -78,7 +80,8 @@ void* mote_main(void *arg) {
    radiotimer_schedule(app_vars.last_compare_val);
    
    while (1) {
-      board_sleep();
+      //board_sleep();
+      thread_yield();
    }
 }
 
