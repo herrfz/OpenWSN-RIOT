@@ -95,7 +95,7 @@ void openudp_receive(OpenQueueEntry_t* msg) {
       case WKP_UDP_COAP:
          opencoap_receive(msg);
          break;
-      case WKP_UDP_ECHO:
+      case WKP_UDP_ECHO: // TODO: make it a general UDP-based application
          uecho_receive(msg);
          break;
       default:

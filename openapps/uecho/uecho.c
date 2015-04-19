@@ -24,7 +24,7 @@ void uecho_receive(OpenQueueEntry_t* request) {
    OpenQueueEntry_t* reply;
 
    if (!expect_echo) {
-      reply = openqueue_getFreePacketBuffer(COMPONENT_UECHO);
+      reply = openqueue_getFreePacketBuffer(COMPONENT_UECHO); // TODO: respond only if listening to the UDP port
       if (reply==NULL) {
          openserial_printError(
             COMPONENT_UECHO,
