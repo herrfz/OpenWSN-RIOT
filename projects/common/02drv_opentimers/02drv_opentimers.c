@@ -21,11 +21,11 @@ radio and sync). When you run the application, you should see the LEDs
 // driver modules required
 #include "opentimers.h"
 
+#include "riot.h"
+
 //=========================== defines =========================================
 
-#define APP_DLY_TIMER0_ms   400
-#define APP_DLY_TIMER1_ms   800
-#define APP_DLY_TIMER2_ms  1600
+#define APP_DLY_TIMER0_ms   15000
 
 //=========================== variables =======================================
 
@@ -40,15 +40,13 @@ app_vars_t app_vars;
 //=========================== prototypes ======================================
 
 void cb_timer0(void);
-void cb_timer1(void);
-void cb_timer2(void);
 
 //=========================== main ============================================
 
 /**
 \brief The program starts executing here.
 */
-int mote_main(void) {
+void* mote_main(void* arg) {
    board_init();
    opentimers_init();
    
@@ -59,35 +57,13 @@ int mote_main(void) {
       cb_timer0              // callback
    );
    
-   opentimers_start(
-      APP_DLY_TIMER1_ms,     // duration
-      TIMER_PERIODIC,        // type
-      TIME_MS,               // timetype
-      cb_timer1              // callback
-   );
-   
-   opentimers_start(
-      APP_DLY_TIMER2_ms,     // duration
-      TIMER_PERIODIC,        // type
-      TIME_MS,               // timetype
-      cb_timer2              // callback
-   );
-   
    while(1) {
-      board_sleep();
+      thread_yield();
    }
 }
 
 //=========================== callbacks =======================================
 
 void cb_timer0(void) {
-   leds_error_toggle();
-}
-
-void cb_timer1(void) {
-   leds_radio_toggle();
-}
-
-void cb_timer2(void) {
    leds_sync_toggle();
 }
