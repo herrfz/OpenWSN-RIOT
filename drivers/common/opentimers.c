@@ -31,10 +31,10 @@ extern void radiotimer_isr(void);
 
 void timers_isr(int channel) {
    if (channel) {
-      radiotimer_isr();
+      opentimers_timer_callback();
    }
    else {
-      opentimers_timer_callback();
+      radiotimer_isr();
    }
 }
 
@@ -136,9 +136,9 @@ opentimer_id_t opentimers_start(uint32_t duration, timer_type_t type, time_type_
          opentimers_vars.currentTimeout            = opentimers_vars.timersBuf[id].ticks_remaining;
          if (opentimers_vars.running==FALSE) {
             // bsp_timer_reset();
-            timer_reset(OWSN_TIMER);
-            timer_set_absolute(OWSN_TIMER, 0, 0);
-            timer_set_absolute(OWSN_TIMER, 1, 0);
+            //timer_reset(OWSN_TIMER);
+            //timer_set_absolute(OWSN_TIMER, 0, 0);
+            //timer_set_absolute(OWSN_TIMER, 1, 0);
          }
          // bsp_timer_scheduleIn(opentimers_vars.timersBuf[id].ticks_remaining);
          timer_set(OWSN_TIMER, 0, opentimers_vars.timersBuf[id].ticks_remaining);

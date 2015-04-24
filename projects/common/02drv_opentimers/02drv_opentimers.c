@@ -13,10 +13,8 @@ radio and sync). When you run the application, you should see the LEDs
 \author Thomas Watteyne <watteyne@eecs.berkeley.edu>, August 2014.
 */
 
-#include "stdint.h"
-#include "stdio.h"
 // bsp modules required
-#include "board.h"
+#include "board_ow.h"
 #include "leds.h"
 // driver modules required
 #include "opentimers.h"

@@ -8,7 +8,7 @@
 
 void board_init_ow(void)
 {
-    //radio_init();
+    radio_init();
     radiotimer_init();
     debugpins_init();
 }
