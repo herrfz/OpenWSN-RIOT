@@ -117,32 +117,10 @@ void radio_txEnable(void) {
    radio_vars.state = RADIOSTATE_ENABLING_TX;
    DEBUG("rf tx en\n");
 
-   //leds_radio_on();
-   leds_sync_toggle();
+   leds_radio_on();
 
    /* Go to state PLL_ON */
-    dummyradio_reg_write(DUMMYRADIO_REG__TRX_STATE, DUMMYRADIO_TRX_STATE__PLL_ON);
-
-    /* wait until it is on PLL_ON state */
-    do {
-        int max_wait = 100;
-        if (!--max_wait) {
-            DEBUG("dummyradio : ERROR : could not enter PLL_ON mode\n");
-            break;
-        }
-    } while ((dummyradio_get_status() & DUMMYRADIO_TRX_STATUS_MASK__TRX_STATUS)
-             != DUMMYRADIO_TRX_STATUS__PLL_ON);
-
-    /* change into TX_ARET_ON state */
-    dummyradio_reg_write(DUMMYRADIO_REG__TRX_STATE, DUMMYRADIO_TRX_STATE__TX_ARET_ON);
-
-    do {
-        int max_wait = 100;
-        if (!--max_wait) {
-            DEBUG("dummyradio : ERROR : could not enter TX_ARET_ON mode\n");
-            break;
-        }
-    } while (dummyradio_get_status() != DUMMYRADIO_TRX_STATUS__TX_ARET_ON);
+   dummyradio_reg_write(DUMMYRADIO_REG__TRX_STATE, DUMMYRADIO_TRX_STATE__PLL_ON);
 
    // change state
    radio_vars.state = RADIOSTATE_TX_ENABLED;
@@ -156,8 +134,7 @@ void radio_txNow(void) {
 
    dummyradio_transmit_tx_buf(&dummyradio_netdev);
 
-   //leds_radio_toggle();
-   //leds_sync_toggle();
+   leds_radio_toggle();
    // The DUMMYRADIO does not generate an interrupt when the radio transmits the
    // SFD, which messes up the MAC state machine. The danger is that, if we leave
    // this funtion like this, any radio watchdog timer will expire.
@@ -182,8 +159,7 @@ void radio_rxEnable(void) {
    // put radio in reception mode
    dummyradio_switch_to_rx();
 
-   //leds_radio_on();
-   //leds_sync_toggle();
+   leds_radio_on();
 
    // change state
    radio_vars.state = RADIOSTATE_LISTENING;
