@@ -53,19 +53,19 @@ void schedule_init(void) {
       running_slotOffset++;
    } 
 
-   // // shared TXRX anycast slot(s)
-   // memset(&temp_neighbor,0,sizeof(temp_neighbor));
-   // temp_neighbor.type             = ADDR_ANYCAST;
-   // for (i=0;i<NUMSHAREDTXRX;i++) {
-   //    schedule_addActiveSlot(
-   //       running_slotOffset,      // slot offset
-   //       CELLTYPE_TXRX,           // type of slot
-   //       TRUE,                    // shared?
-   //       0,                       // channel offset
-   //       &temp_neighbor           // neighbor
-   //    );
-   //    running_slotOffset++;
-   // }
+   // shared TXRX anycast slot(s)
+   memset(&temp_neighbor,0,sizeof(temp_neighbor));
+   temp_neighbor.type             = ADDR_ANYCAST;
+   for (i=0;i<NUMSHAREDTXRX;i++) {
+      schedule_addActiveSlot(
+         running_slotOffset,      // slot offset
+         CELLTYPE_TXRX,           // type of slot
+         TRUE,                    // shared?
+         0,                       // channel offset
+         &temp_neighbor           // neighbor
+      );
+      running_slotOffset++;
+   }
 
    // serial RX slot(s)
    memset(&temp_neighbor,0,sizeof(temp_neighbor));
