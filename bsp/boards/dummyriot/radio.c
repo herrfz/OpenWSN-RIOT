@@ -135,7 +135,7 @@ void radio_txNow(void) {
    dummyradio_transmit_tx_buf(&dummyradio_netdev);
 
    leds_radio_toggle();
-   // The DUMMYRADIO does not generate an interrupt when the radio transmits the
+   // AT86RF231 does not generate an interrupt when the radio transmits the
    // SFD, which messes up the MAC state machine. The danger is that, if we leave
    // this funtion like this, any radio watchdog timer will expire.
    // Instead, we cheat an mimick a start of frame event by calling
@@ -144,8 +144,16 @@ void radio_txNow(void) {
    // transmitted (I've never seen that).
    if (radio_vars.startFrame_cb!=NULL) {
       // call the callback
+      dummyradio_reg_read(DUMMYRADIO_REG__IRQ_STATUS);
       val=radiotimer_getCapturedTime();
       radio_vars.startFrame_cb(val);
+   }
+   // DUMMYRADIO, being a dummy, doesn't generate end-of-frame interrupt either
+   if (radio_vars.endFrame_cb!=NULL) {
+      // call the callback
+      dummyradio_reg_read(DUMMYRADIO_REG__IRQ_STATUS);
+      val=radiotimer_getCapturedTime();
+      radio_vars.endFrame_cb(val);
    }
    DEBUG("SENT");
 }
