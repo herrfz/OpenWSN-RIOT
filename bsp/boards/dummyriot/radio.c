@@ -144,17 +144,13 @@ void radio_txNow(void) {
    // transmitted (I've never seen that).
    if (radio_vars.startFrame_cb!=NULL) {
       // call the callback
-      dummyradio_reg_read(DUMMYRADIO_REG__IRQ_STATUS);
       val=radiotimer_getCapturedTime();
       radio_vars.startFrame_cb(val);
    }
-   // DUMMYRADIO, being a dummy, doesn't generate end-of-frame interrupt either
-   if (radio_vars.endFrame_cb!=NULL) {
-      // call the callback
-      dummyradio_reg_read(DUMMYRADIO_REG__IRQ_STATUS);
-      val=radiotimer_getCapturedTime();
-      radio_vars.endFrame_cb(val);
-   }
+   // DUMMYRADIO, being a dummy, doesn't generate end-of-frame interrupt either.
+   // Instead of calling the callback, we generate the interrupt on the SPI driver when IRQ_STATUS register gets written.
+   // We can't do the same trick on the start-of-frame because the first interrupt would be ignored
+   dummyradio_reg_write(DUMMYRADIO_REG__IRQ_STATUS, DUMMYRADIO_IRQ_STATUS_MASK__TRX_END);
    DEBUG("SENT");
 }
 
@@ -174,8 +170,14 @@ void radio_rxEnable(void) {
 }
 
 void radio_rxNow(void) {
-   // nothing to do
-
+   PORT_TIMER_WIDTH val;
+   // same trick as for txNow
+   if (radio_vars.startFrame_cb!=NULL) {
+      // call the callback
+      val=radiotimer_getCapturedTime();
+      radio_vars.startFrame_cb(val);
+   }
+   dummyradio_reg_write(DUMMYRADIO_REG__IRQ_STATUS, DUMMYRADIO_IRQ_STATUS_MASK__TRX_END);
 }
 
 void radio_getReceivedFrame(uint8_t* pBufRead,
