@@ -137,7 +137,7 @@ opentimer_id_t opentimers_start(uint32_t duration, timer_type_t type, time_type_
          if (opentimers_vars.running==FALSE) {
             // bsp_timer_reset();
             //timer_reset(OWSN_TIMER);
-            timer_set_absolute(OWSN_TIMER, 0, 0);
+            //timer_set_absolute(OWSN_TIMER, 0, 0);
             //timer_set_absolute(OWSN_TIMER, 1, 0);
          }
          // bsp_timer_scheduleIn(opentimers_vars.timersBuf[id].ticks_remaining);
