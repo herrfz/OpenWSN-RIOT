@@ -1,8 +1,8 @@
 #include "eui64.h"
 
 //=========================== defines =========================================
-// stm32f103rey, 96-bit unique ID address
-#define UNIQUE_ID_BASE_ADDRESS          0x1FFFF7E8
+// stm32f411 (nucleo), 96-bit unique ID address
+#define UNIQUE_ID_BASE_ADDRESS          0x1FFF7A10
 
 //=========================== variables =======================================
 

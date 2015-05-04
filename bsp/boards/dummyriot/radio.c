@@ -186,7 +186,7 @@ void radio_getReceivedFrame(uint8_t* pBufRead,
                              int8_t* pRssi,
                             uint8_t* pLqi,
                                bool* pCrc) {
-   uint8_t fcs_rssi = 0xfc;;
+   uint8_t fcs_rssi = 0xfc;
 
    //===== rssi crc
    /* dummy fcs and rssi */
