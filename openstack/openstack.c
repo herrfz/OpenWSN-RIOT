@@ -30,9 +30,9 @@
 #include "icmpv6echo.h"
 #include "icmpv6rpl.h"
 //-- 04-TRAN
-#include "opentcp.h"
+// #include "opentcp.h"
 #include "openudp.h"
-#include "opencoap.h"
+// #include "opencoap.h"
 //===== applications
 #include "openapps.h"
 
@@ -75,9 +75,9 @@ void openstack_init(uint8_t role) {
    icmpv6echo_init();
    icmpv6rpl_init();
    //-- 04-TRAN
-   opentcp_init();
+   // opentcp_init();
    openudp_init();
-   opencoap_init();     // initialize before any of the CoAP applications
+   // opencoap_init();     // initialize before any of the CoAP applications
    
    //===== applications
    openapps_init();

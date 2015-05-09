@@ -5,7 +5,7 @@
 #include "forwarding.h"
 #include "openqueue.h"
 // applications
-#include "opencoap.h"
+// #include "opencoap.h"
 #include "uecho.h"
 
 //=========================== variables =======================================
@@ -34,7 +34,7 @@ void openudp_sendDone(OpenQueueEntry_t* msg, owerror_t error) {
    msg->owner = COMPONENT_OPENUDP;
    switch(msg->l4_sourcePortORicmpv6Type) {
       case WKP_UDP_COAP:
-         opencoap_sendDone(msg,error);
+         // opencoap_sendDone(msg,error);
          break;
       case WKP_UDP_ECHO:
          uecho_sendDone(msg,error);
@@ -93,7 +93,7 @@ void openudp_receive(OpenQueueEntry_t* msg) {
    
    switch(msg->l4_destination_port) {
       case WKP_UDP_COAP:
-         opencoap_receive(msg);
+         // opencoap_receive(msg);
          break;
       case WKP_UDP_ECHO: // TODO: make it a general UDP-based application
          uecho_receive(msg);
