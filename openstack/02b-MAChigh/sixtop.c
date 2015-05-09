@@ -460,7 +460,7 @@ void task_sixtopNotifReceive(void) {
    // send the packet up the stack, if it qualifies
    switch (msg->l2_frameType) {
       case IEEE154_TYPE_BEACON:
-      case IEEE154_TYPE_DATA: // TODO: no pass data to higher layer??
+      case IEEE154_TYPE_DATA:
       case IEEE154_TYPE_CMD:
          if (msg->length>0) {
             // send to upper layer

@@ -33,7 +33,7 @@ to return the board's description.
 
 //===== IEEE802154E timing
 // time-slot related
-#define PORT_TsSlotDuration                 15000
+#define PORT_TsSlotDuration                 10525 //15000
 
 #define PORT_maxTxDataPrepare               2014
 #define PORT_maxRxAckPrepare                900
