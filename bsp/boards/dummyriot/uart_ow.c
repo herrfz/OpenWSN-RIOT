@@ -1,9 +1,13 @@
 #include "uart.h"
 #include "leds.h"
+
 #include "periph/uart.h"
 
-//=========================== defines =========================================
+#include <stdio.h>
 
+//=========================== defines =========================================
+#define DEV             UART_0
+#define BAUD            115200
 //=========================== variables =======================================
 
 typedef struct {
@@ -28,6 +32,14 @@ void uart_init_ow(void)
   uart_vars.startOrend = 0;
   //flag byte for start byte and end byte
   uart_vars.flagByte = 0x7E;
+
+  printf("Setting up UART @ %i", BAUD);
+  if (uart_init_blocking(DEV, BAUD) >= 0) {
+      puts("   ...ok");
+  } else {
+      puts("   ...failed");
+      while(1);
+  }
 }
 
 void uart_setCallbacks(uart_tx_cbt txCb, uart_rx_cbt rxCb)
@@ -61,6 +73,7 @@ void uart_writeByte(uint8_t byteToWrite)
 {
   // USART_SendData(USART1, byteToWrite);
   // while(USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);
+  uart_write_blocking(DEV, byteToWrite);
 
   // //start or end byte?
   // if(byteToWrite == uart_vars.flagByte) {
@@ -76,8 +89,9 @@ void uart_writeByte(uint8_t byteToWrite)
 
 uint8_t uart_readByte(void)
 {
-  uint16_t temp = 0;
+  char temp;
   // temp = USART_ReceiveData(USART1);
+  uart_read_blocking(DEV, &temp);
   return (uint8_t)temp;
 }
 
