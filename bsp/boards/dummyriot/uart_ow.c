@@ -15,12 +15,15 @@ typedef struct {
    uart_rx_cbt rxCb;
    uint8_t     startOrend;
    uint8_t     flagByte;
+   char        rxByte;
+   char        txByte;
 } uart_vars_t;
 
 volatile uart_vars_t uart_vars;
 
 //=========================== prototypes ======================================
-
+void rx(void *ptr, char data);
+int tx(void *ptr);
 //=========================== public ==========================================
 
 void uart_init_ow(void)
@@ -33,9 +36,9 @@ void uart_init_ow(void)
   //flag byte for start byte and end byte
   uart_vars.flagByte = 0x7E;
 
-  printf("Setting up UART @ %i", BAUD);
-  if (uart_init_blocking(DEV, BAUD) >= 0) {
-      puts("   ...ok");
+  printf("Initializing UART @ %i", BAUD);
+  if (uart_init(DEV, BAUD, rx, tx, 0) >= 0) {
+      puts("   ...done");
   } else {
       puts("   ...failed");
       while(1);
@@ -73,29 +76,40 @@ void uart_writeByte(uint8_t byteToWrite)
 {
   // USART_SendData(USART1, byteToWrite);
   // while(USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);
-  uart_write_blocking(DEV, byteToWrite);
+  uart_vars.txByte = (char)byteToWrite;
 
-  // //start or end byte?
-  // if(byteToWrite == uart_vars.flagByte) {
-  //   uart_vars.startOrend = (uart_vars.startOrend == 0)?1:0;
-  //   //start byte
-  //   if(uart_vars.startOrend == 1) {
-  //     USART_ITConfig(USART1, USART_IT_TXE, ENABLE);
-  //   } else {
-  //     USART_ITConfig(USART1, USART_IT_TXE, DISABLE);
-  //   }
-  // }
+  //start or end byte?
+  if(uart_vars.txByte == uart_vars.flagByte) {
+    uart_vars.startOrend = (uart_vars.startOrend == 0)?1:0;
+    //start byte
+    if(uart_vars.startOrend == 1) {
+      uart_tx_begin(DEV);
+    }
+  }
 }
 
 uint8_t uart_readByte(void)
 {
-  char temp;
+  // char temp;
   // temp = USART_ReceiveData(USART1);
-  uart_read_blocking(DEV, &temp);
-  return (uint8_t)temp;
+  return (uint8_t)uart_vars.rxByte;
 }
 
 //=========================== interrupt handlers ==============================
+
+void rx(void *ptr, char data)
+{
+  uart_vars.rxByte = data;
+  uart_rx_isr();
+}
+
+int tx(void *ptr)
+{
+  /* return 1 if there is still byte to tx, 0 otherwise */
+  uart_write(DEV, uart_vars.txByte);
+  uart_tx_isr();
+  return uart_vars.startOrend;
+}
 
 kick_scheduler_t uart_tx_isr(void)
 {

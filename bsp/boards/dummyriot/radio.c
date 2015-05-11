@@ -172,6 +172,8 @@ void radio_rxEnable(void) {
 void radio_rxNow(void) {
    PORT_TIMER_WIDTH val;
    // same trick as for txNow
+   // in reality, the callback shouldn't be called if there's no incoming frame
+   // which will cause rt3 to expire and the fifo won't be read
    if (radio_vars.startFrame_cb!=NULL) {
       // call the callback
       val=radiotimer_getCapturedTime();
