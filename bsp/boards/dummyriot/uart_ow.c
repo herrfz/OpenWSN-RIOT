@@ -1,12 +1,12 @@
 #include "uart.h"
 #include "leds.h"
 
+#include "board.h"
 #include "periph/uart.h"
 
 #include <stdio.h>
 
 //=========================== defines =========================================
-#define DEV             UART_0
 #define BAUD            115200
 //=========================== variables =======================================
 
@@ -16,7 +16,6 @@ typedef struct {
    uint8_t     startOrend;
    uint8_t     flagByte;
    char        rxByte;
-   char        txByte;
 } uart_vars_t;
 
 volatile uart_vars_t uart_vars;
@@ -37,7 +36,7 @@ void uart_init_ow(void)
   uart_vars.flagByte = 0x7E;
 
   printf("Initializing UART @ %i", BAUD);
-  if (uart_init(DEV, BAUD, rx, tx, 0) >= 0) {
+  if (uart_init(UART_0_DEV, BAUD, rx, tx, 0) >= 0) {
       puts("   ...done");
   } else {
       puts("   ...failed");
@@ -53,45 +52,45 @@ void uart_setCallbacks(uart_tx_cbt txCb, uart_rx_cbt rxCb)
 
 void uart_enableInterrupts(void)
 {
-  // USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
+  UART_0_ENABLE_RXINTERRUPT;
 }
 
 void uart_disableInterrupts(void)
 {
-  // USART_ITConfig(USART1, USART_IT_TXE, DISABLE);
-  // USART_ITConfig(USART1, USART_IT_RXNE, DISABLE);
+  UART_0_DISABLE_RXINTERRUPT;
+  UART_0_DISABLE_TXINTERRUPT;
 }
 
 void uart_clearRxInterrupts(void)
 {
-  // USART_ClearFlag(USART1, USART_FLAG_RXNE);
+  UART_0_CLEAR_RXFLAG;
 }
 
 void uart_clearTxInterrupts(void)
 {
-  // USART_ClearFlag(USART1, USART_FLAG_TXE);
+  UART_0_CLEAR_TXFLAG;
 }
 
 void uart_writeByte(uint8_t byteToWrite)
 {
-  // USART_SendData(USART1, byteToWrite);
-  // while(USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);
-  uart_vars.txByte = (char)byteToWrite;
+  uart_write(UART_0_DEV, (char)byteToWrite);
+  //do nothing while uart stil transmitting
+  //see $(RIOT)/boards/$(BOARD)/include/board.h
+  while(UART_0_TXBUSY);
 
   //start or end byte?
   if(uart_vars.txByte == uart_vars.flagByte) {
+    //flip startOrend
     uart_vars.startOrend = (uart_vars.startOrend == 0)?1:0;
-    //start byte
     if(uart_vars.startOrend == 1) {
-      uart_tx_begin(DEV);
+      //start byte
+      uart_tx_begin(UART_0_DEV);
     }
   }
 }
 
 uint8_t uart_readByte(void)
 {
-  // char temp;
-  // temp = USART_ReceiveData(USART1);
   return (uint8_t)uart_vars.rxByte;
 }
 
@@ -105,9 +104,8 @@ void rx(void *ptr, char data)
 
 int tx(void *ptr)
 {
-  /* return 1 if there is still byte to tx, 0 otherwise */
-  uart_write(DEV, uart_vars.txByte);
   uart_tx_isr();
+  // return 1 if there is still byte to tx, 0 otherwise
   return uart_vars.startOrend;
 }
 
