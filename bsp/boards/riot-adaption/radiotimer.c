@@ -19,7 +19,6 @@ On openmoteSTM32, we use RTC for the radiotimer module.
 #define ENABLE_DEBUG (0)
 #include "debug.h"
 
-
 //=========================== variables =======================================
 
 enum  radiotimer_irqstatus_enum{
@@ -68,7 +67,6 @@ void radiotimer_setEndFrameCb(radiotimer_capture_cbt cb) {
 
 void radiotimer_start(PORT_RADIOTIMER_WIDTH period) {
     DEBUG("%s\n", __PRETTY_FUNCTION__);
-    timer_init(OWSN_TIMER, 1, &radiotimer_isr);
     //timer_set(OWSN_TIMER, 1, ((unsigned int)HWTIMER_TICKS(period)*10));
     timer_set(OWSN_TIMER, 1, ((unsigned int)HWTIMER_TICKS(period)));
     current_period = period;
