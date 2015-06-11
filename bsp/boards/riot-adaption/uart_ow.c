@@ -11,14 +11,14 @@
 //=========================== variables =======================================
 
 typedef struct {
-   uart_tx_cbt txCb;
-   uart_rx_cbt rxCb;
-   uint8_t     startOrend;
-   uint8_t     flagByte;
-   char        rxByte;
+   uart_tx_cbt      txCb;
+   uart_rx_cbt      rxCb;
+   uint8_t          startOrend;
+   uint8_t          flagByte;
+   volatile char    rxByte;
 } uart_vars_t;
 
-volatile uart_vars_t uart_vars;
+uart_vars_t uart_vars;
 
 //=========================== prototypes ======================================
 void rx(void *ptr, char data);
@@ -28,7 +28,7 @@ int tx(void *ptr);
 void uart_init_ow(void)
 {
   // reset local variables
-  memset((void*)&uart_vars,0,sizeof(uart_vars_t));
+  memset(&uart_vars,0,sizeof(uart_vars_t));
 
   //when this value is 0, we are send the first data
   uart_vars.startOrend = 0;
@@ -36,7 +36,7 @@ void uart_init_ow(void)
   uart_vars.flagByte = 0x7E;
 
   printf("Initializing UART @ %i", BAUD);
-  if (uart_init(UART_0_DEV, BAUD, rx, tx, 0) >= 0) {
+  if (uart_init(UART_0, BAUD, rx, tx, 0) >= 0) {
       puts("   ...done");
   } else {
       puts("   ...failed");
@@ -73,18 +73,18 @@ void uart_clearTxInterrupts(void)
 
 void uart_writeByte(uint8_t byteToWrite)
 {
-  uart_write(UART_0_DEV, (char)byteToWrite);
+  uart_write(UART_0, (char)byteToWrite);
   //do nothing while uart stil transmitting
   //see $(RIOT)/boards/$(BOARD)/include/board.h
   while(UART_0_TXBUSY);
 
   //start or end byte?
-  if(uart_vars.txByte == uart_vars.flagByte) {
+  if(byteToWrite == uart_vars.flagByte) {
     //flip startOrend
     uart_vars.startOrend = (uart_vars.startOrend == 0)?1:0;
     if(uart_vars.startOrend == 1) {
       //start byte
-      uart_tx_begin(UART_0_DEV);
+      uart_tx_begin(UART_0);
     }
   }
 }
