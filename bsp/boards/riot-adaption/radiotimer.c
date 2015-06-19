@@ -38,7 +38,7 @@ volatile radiotimer_vars_t radiotimer_vars;
 uint16_t current_period;
 
 //=========================== prototypes ======================================
-extern int timer_set_relative(tim_t, int channel, unsigned int rel_value);
+
 //=========================== public ==========================================
 
 //===== admin
@@ -67,7 +67,6 @@ void radiotimer_setEndFrameCb(radiotimer_capture_cbt cb) {
 
 void radiotimer_start(PORT_RADIOTIMER_WIDTH period) {
     DEBUG("%s\n", __PRETTY_FUNCTION__);
-    //timer_set(OWSN_TIMER, 1, ((unsigned int)HWTIMER_TICKS(period)*10));
     timer_set(OWSN_TIMER, 1, ((unsigned int)HWTIMER_TICKS(period)));
     current_period = period;
     radiotimer_vars.currentSlotPeriod = period;
@@ -82,7 +81,6 @@ PORT_RADIOTIMER_WIDTH radiotimer_getValue(void) {
 
 void radiotimer_setPeriod(PORT_RADIOTIMER_WIDTH period) {
     DEBUG("%s\n", __PRETTY_FUNCTION__);
-    //timer_set(OWSN_TIMER, 1, ((unsigned int)HWTIMER_TICKS(period)*10));
     timer_set(OWSN_TIMER, 1, ((unsigned int)HWTIMER_TICKS(period)));
     current_period = period;
     radiotimer_vars.currentSlotPeriod = period;
@@ -100,8 +98,7 @@ PORT_RADIOTIMER_WIDTH radiotimer_getPeriod(void) {
 void radiotimer_schedule(PORT_RADIOTIMER_WIDTH offset) {
     DEBUG("%s\n", __PRETTY_FUNCTION__);
     timer_irq_disable(OWSN_TIMER);
-    //timer_set(OWSN_TIMER, 1, HWTIMER_TICKS(offset)*10);
-    timer_set(OWSN_TIMER, 1, HWTIMER_TICKS(offset));
+    timer_set(OWSN_TIMER, 1, ((unsigned int)HWTIMER_TICKS(offset)));
     timer_irq_enable(OWSN_TIMER);
     //set radiotimer irpstatus
     radiotimer_vars.overflowORcompare = RADIOTIMER_COMPARE;
@@ -111,8 +108,7 @@ void radiotimer_cancel(void) {
     DEBUG("%s\n", __PRETTY_FUNCTION__);
     timer_irq_disable(OWSN_TIMER);
     timer_clear(OWSN_TIMER, 1);
-    //timer_set(OWSN_TIMER, 1, HWTIMER_TICKS(current_period)*10);
-    timer_set(OWSN_TIMER, 1, HWTIMER_TICKS(current_period));
+    timer_set(OWSN_TIMER, 1, ((unsigned int)HWTIMER_TICKS(current_period)));
     timer_irq_enable(OWSN_TIMER);
 
     //set radiotimer irpstatus
@@ -144,7 +140,6 @@ void radiotimer_isr(int arg) {
             DEBUG("%s of\n", __PRETTY_FUNCTION__);
             if (radiotimer_vars.overflow_cb!=NULL) {
                 //Wait until last write operation on RTC registers has finished
-                //timer_set(OWSN_TIMER, 1, HWTIMER_TICKS(current_period)*10);
                 timer_set(OWSN_TIMER, 1, HWTIMER_TICKS(current_period));
                 // call the callback
                 radiotimer_vars.overflow_cb();

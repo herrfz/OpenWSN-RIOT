@@ -11,6 +11,7 @@
 #define ENABLE_DEBUG (0)
 #include "debug.h"
 
+#include <string.h>
 
 //=========================== defines =========================================
 
@@ -105,8 +106,11 @@ void radio_loadPacket(uint8_t* packet, uint8_t len) {
    // change state
    radio_vars.state = RADIOSTATE_LOADING_PACKET;
 
-   // load packet in TXFIFO
-   at86rf231_write_fifo(packet, len);
+   // load packet in TXFIFO, + 1 Byte for PHR (:=length)
+   uint8_t pkt[len + 1];
+   pkt[0] = len;
+   memcpy(&pkt[1], packet, len);
+   at86rf231_write_fifo(pkt, len + 1);
 
    // change state
    radio_vars.state = RADIOSTATE_PACKET_LOADED;
@@ -194,18 +198,25 @@ void radio_getReceivedFrame(uint8_t* pBufRead,
                              int8_t* pRssi,
                             uint8_t* pLqi,
                                bool* pCrc) {
-   uint8_t temp_reg_value;
-
-   //===== crc
-   temp_reg_value  = at86rf231_reg_read(AT86RF231_REG__PHY_RSSI);
-   *pCrc           = (temp_reg_value & 0x80)>>7;  // msb is whether packet passed CRC
-   //===== rssi
-   *pRssi          = (temp_reg_value & 0x0f);
+   // called from IEEE802154E.c with maxBufLen := sizeof(OpenQueueEntry_t.packet)
+   // which includes already length and LQI
+   uint8_t fifo_buf[maxBufLen];
+   uint8_t fcs_rssi;
 
    //===== packet
    at86rf231_read_fifo(pLenRead, 1);
-   at86rf231_read_fifo(pBufRead, *pLenRead);
-   *pLqi = pBufRead[(*pLenRead)-1];
+   // read extra 2 Bytes: PHR (:= length itself), LQI
+   at86rf231_read_fifo(fifo_buf, *pLenRead + 2);
+   // return just the PSDU
+   memcpy(pBufRead, fifo_buf + 1, *pLenRead);
+   // LQI is the last byte
+   *pLqi = *(fifo_buf + (*pLenRead + 1));
+
+   fcs_rssi  = at86rf231_reg_read(AT86RF231_REG__PHY_RSSI);
+   //===== rssi
+   *pRssi          = (fcs_rssi & 0x1f);
+   //===== crc
+   *pCrc           = (fcs_rssi >> 7) & 0x01;  // msb is whether packet passed CRC
 }
 
 //=========================== private =========================================
