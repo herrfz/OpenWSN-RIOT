@@ -1037,6 +1037,7 @@ port_INLINE void activity_ti5(PORT_RADIOTIMER_WIDTH capturedTime) {
    }
 }
 
+port_INLINE void activity_ti6(void) {
    // change state
    changeState(S_RXACKPREPARE);
 
@@ -1057,7 +1058,7 @@ port_INLINE void activity_ti5(PORT_RADIOTIMER_WIDTH capturedTime) {
    
    // change state
    changeState(S_RXACKREADY);
-
+}
 
 port_INLINE void activity_tie4(void) {
    // log the error
