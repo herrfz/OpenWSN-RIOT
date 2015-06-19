@@ -17,6 +17,8 @@
 #include "idmanager.h"
 #include "schedule.h"
 
+#include <stdio.h>
+
 //=========================== variables =======================================
 
 sixtop_vars_t sixtop_vars;
@@ -381,11 +383,13 @@ void task_sixtopNotifSendDone(void) {
             
             // not busy sending ADV anymore
             sixtop_vars.busySendingEB = FALSE;
+            puts("sixtop.c: done sending EB");
          } else {
             // this is a KA
             
             // not busy sending KA anymore
             sixtop_vars.busySendingKA = FALSE;
+            puts("sixtop.c: done sending KA");
          }
          // discard packets
          openqueue_freePacketBuffer(msg);
@@ -425,6 +429,12 @@ void task_sixtopNotifReceive(void) {
       );
       return;
    }
+
+   printf("sixtop.c: received %d Bytes packet:", msg->length);
+   for (int i = 0; i < msg->length; i++) {
+      printf("%02x ", msg->payload[i]);
+   }
+   printf("\n");
    
    // take ownership
    msg->owner = COMPONENT_SIXTOP;
@@ -441,6 +451,8 @@ void task_sixtopNotifReceive(void) {
       //log error
       return;
    }
+
+   printf("sixtop.c: lenIE: %d\n", lenIE);
    
    // toss the header IEs
    packetfunctions_tossHeader(msg,lenIE);
@@ -606,7 +618,9 @@ void timer_sixtop_management_fired(void) {
    switch (sixtop_vars.mgtTaskCounter) {
       case 0:
          // called every ADVTIMEOUT seconds
-         sixtop_sendEB();
+         if (idmanager_getIsDAGroot()) {
+            sixtop_sendEB();
+         } 
          break;
       case 1:
          // called every ADVTIMEOUT seconds
@@ -682,6 +696,7 @@ port_INLINE void sixtop_sendEB(void) {
    adv->l2_IEListPresent = IEEE154_IELIST_YES;
    
    // put in queue for MAC to handle
+   puts("sixtop.c: sending EB");
    sixtop_send_internal(adv,IEEE154_IELIST_YES,IEEE154_FRAMEVERSION);
    
    // I'm now busy sending an ADV
@@ -743,6 +758,11 @@ port_INLINE void sixtop_sendKA(void) {
    memcpy(&(kaPkt->l2_nextORpreviousHop),kaNeighAddr,sizeof(open_addr_t));
    
    // put in queue for MAC to handle
+   puts("sixtop.c: sending KA:");
+   for (int i = 0; i < kaPkt->length; i++) {
+      printf("%02x ", kaPkt->payload[i]);
+   }
+   printf("\n");
    sixtop_send_internal(kaPkt,IEEE154_IELIST_NO,IEEE154_FRAMEVERSION_2006);
    
    // I'm now busy sending a KA
