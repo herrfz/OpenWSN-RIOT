@@ -1037,9 +1037,11 @@ port_INLINE void activity_ti5(PORT_RADIOTIMER_WIDTH capturedTime) {
    }
 }
 
-port_INLINE void activity_ti6(void) {
    // change state
    changeState(S_RXACKPREPARE);
+
+   // arm tt6
+   radiotimer_schedule(DURATION_tt6);
    
    // calculate the frequency to transmit on
    ieee154e_vars.freq = calculateFrequency(schedule_getChannelOffset()); 
@@ -1051,13 +1053,11 @@ port_INLINE void activity_ti6(void) {
    radio_rxEnable();
    //caputre init of radio for duty cycle calculation
    ieee154e_vars.radioOnInit=radio_getTimerValue();
-   ieee154e_vars.radioOnThisSlot=TRUE;
-   // arm tt6
-   radiotimer_schedule(DURATION_tt6);
+   ieee154e_vars.radioOnThisSlot=TRUE;   
    
    // change state
    changeState(S_RXACKREADY);
-}
+
 
 port_INLINE void activity_tie4(void) {
    // log the error
@@ -1254,6 +1254,9 @@ port_INLINE void activity_ti9(PORT_RADIOTIMER_WIDTH capturedTime) {
 port_INLINE void activity_ri2(void) {
    // change state
    changeState(S_RXDATAPREPARE);
+
+   // arm rt2
+   radiotimer_schedule(DURATION_rt2);
    
    // calculate the frequency to transmit on
    ieee154e_vars.freq = calculateFrequency(schedule_getChannelOffset()); 
@@ -1265,9 +1268,6 @@ port_INLINE void activity_ri2(void) {
    radio_rxEnable();
    ieee154e_vars.radioOnInit=radio_getTimerValue();
    ieee154e_vars.radioOnThisSlot=TRUE;
-   
-   // arm rt2
-   radiotimer_schedule(DURATION_rt2);
        
    // change state
    changeState(S_RXDATAREADY);
@@ -1286,12 +1286,12 @@ port_INLINE void activity_rie1(void) {
 port_INLINE void activity_ri3(void) {
    // change state
    changeState(S_RXDATALISTEN);
+
+   // arm rt3 
+   radiotimer_schedule(DURATION_rt3);
    
    // give the 'go' to receive
    radio_rxNow();
-   
-   // arm rt3 
-   radiotimer_schedule(DURATION_rt3);
 }
 
 port_INLINE void activity_rie2(void) {
@@ -1469,11 +1469,15 @@ port_INLINE void activity_ri5(PORT_RADIOTIMER_WIDTH capturedTime) {
 }
 
 port_INLINE void activity_ri6(void) {
+
    PORT_SIGNED_INT_WIDTH timeCorrection;
    header_IE_ht header_desc;
    
    // change state
    changeState(S_TXACKPREPARE);
+
+   // arm rt6
+   radiotimer_schedule(DURATION_rt6);
    
    // get a buffer to put the ack to send in
    ieee154e_vars.ackToSend = openqueue_getFreePacketBuffer(COMPONENT_IEEE802154E);
@@ -1542,11 +1546,10 @@ port_INLINE void activity_ri6(void) {
    radio_txEnable();
    ieee154e_vars.radioOnInit=radio_getTimerValue();
    ieee154e_vars.radioOnThisSlot=TRUE;
-   // arm rt6
-   radiotimer_schedule(DURATION_rt6);
    
    // change state
    changeState(S_TXACKREADY);
+
 }
 
 port_INLINE void activity_rie4(void) {
