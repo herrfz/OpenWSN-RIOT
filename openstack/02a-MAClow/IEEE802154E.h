@@ -131,19 +131,19 @@ enum ieee154e_atomicdurations_enum {
    TsLongGT                  =  1300,                  //  1300us
    TsTxAckDelay              =  4606,                  //  4606us
    TsShortGT                 =   500,                  //   500us
-   TsSlotDuration            =  PORT_TsSlotDuration,  // 15000us
+   TsSlotDuration            =  PORT_TsSlotDuration,   // 15000us
    // execution speed related
    maxTxDataPrepare          =  PORT_maxTxDataPrepare,
    maxRxAckPrepare           =  PORT_maxRxAckPrepare,
    maxRxDataPrepare          =  PORT_maxRxDataPrepare,
    maxTxAckPrepare           =  PORT_maxTxAckPrepare,
    // radio speed related
-   delayTx                   =  PORT_delayTx,         // between GO signal and SFD
-   delayRx                   =  PORT_delayRx,         // between GO signal and start listening
+   delayTx                   =  PORT_delayTx,          // between GO signal and SFD
+   delayRx                   =  PORT_delayRx,          // between GO signal and start listening
    // radio watchdog
-   wdRadioTx                 =   1000,                  //  1000us (needs to be >delayTx)
+   wdRadioTx                 =  1000,                  //  1000us (needs to be >delayTx)
    wdDataDuration            =  5000,                  //  5000us (measured 4280us with max payload)
-   wdAckDuration             =   3000,                  //  3000us (measured 1000us)
+   wdAckDuration             =  3000,                  //  3000us (measured 1000us)
 };
 
 //shift of bytes in the linkOption bitmap
@@ -156,6 +156,7 @@ enum ieee154e_linkOption_enum {
 
 // FSM timer durations (combinations of atomic durations)
 // TX
+/*
 #define DURATION_tt1 ieee154e_vars.lastCapturedTime+TsTxOffset-delayTx-maxTxDataPrepare
 #define DURATION_tt2 ieee154e_vars.lastCapturedTime+TsTxOffset-delayTx
 #define DURATION_tt3 ieee154e_vars.lastCapturedTime+TsTxOffset-delayTx+wdRadioTx
@@ -173,6 +174,24 @@ enum ieee154e_linkOption_enum {
 #define DURATION_rt6 ieee154e_vars.lastCapturedTime+TsTxAckDelay-delayTx
 #define DURATION_rt7 ieee154e_vars.lastCapturedTime+TsTxAckDelay-delayTx+wdRadioTx
 #define DURATION_rt8 ieee154e_vars.lastCapturedTime+wdAckDuration
+*/
+#define DURATION_tt1 TsTxOffset-delayTx-maxTxDataPrepare
+#define DURATION_tt2 maxTxDataPrepare
+#define DURATION_tt3 wdRadioTx
+#define DURATION_tt4 wdDataDuration
+#define DURATION_tt5 TsTxAckDelay-TsShortGT-delayRx-maxRxAckPrepare
+#define DURATION_tt6 maxRxAckPrepare
+#define DURATION_tt7 delayRx+2*TsShortGT
+#define DURATION_tt8 wdAckDuration
+// RX
+#define DURATION_rt1 TsTxOffset-TsLongGT-delayRx-maxRxDataPrepare
+#define DURATION_rt2 maxRxDataPrepare
+#define DURATION_rt3 delayRx+2*TsLongGT
+#define DURATION_rt4 wdDataDuration
+#define DURATION_rt5 TsTxAckDelay-delayTx-maxTxAckPrepare
+#define DURATION_rt6 maxTxAckPrepare
+#define DURATION_rt7 wdRadioTx
+#define DURATION_rt8 wdAckDuration
 
 //=========================== typedef =========================================
 
