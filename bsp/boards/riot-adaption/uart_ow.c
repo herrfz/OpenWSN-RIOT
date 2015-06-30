@@ -73,10 +73,7 @@ void uart_clearTxInterrupts(void)
 
 void uart_writeByte(uint8_t byteToWrite)
 {
-  uart_write(UART_0, (char)byteToWrite);
-  //do nothing while uart stil transmitting
-  //see $(RIOT)/boards/$(BOARD)/include/board.h
-  while(UART_0_TXBUSY);
+  uart_write_blocking(UART_0, (char)byteToWrite);
 
   //start or end byte?
   if(byteToWrite == uart_vars.flagByte) {
