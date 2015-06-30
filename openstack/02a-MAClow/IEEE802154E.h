@@ -143,7 +143,7 @@ enum ieee154e_atomicdurations_enum {
    // radio watchdog
    wdRadioTx                 =  1000,                  //  1000us (needs to be >delayTx)
    wdDataDuration            =  5000,                  //  5000us (measured 4280us with max payload)
-   wdAckDuration             =  3000,                  //  3000us (measured 1000us)
+   wdAckDuration             =  3500,                  //  3000us (measured 1000us)
 };
 
 //shift of bytes in the linkOption bitmap
